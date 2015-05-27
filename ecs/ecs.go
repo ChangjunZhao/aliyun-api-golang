@@ -88,6 +88,19 @@ func (c *Client) DescribeInstanceAttribute(instanceId string) (*InstanceAttribut
 	}
 }
 
+/*
+给一个特定实例分配一个可用公网IP地址。
+
+实例的状态必须为 Running 或 Stopped 状态，才可以调用此接口。
+
+分配的 IP 必须在实例启动或重启后才能生效。
+
+分配的时候只能是 IP，不能是 IP 段。
+
+目前，一个实例只能分配一个 IP。当调用此接口时，如果实例已经拥有一个公网 IP，将直接返回原 IP 地址。
+
+被安全控制在实例的 OperationLocks 中标记了 "LockReason" : "security" 的锁定状态时，不能分配公网 IP。
+*/
 func (c *Client) AllocatePublicIpAddress(instanceId string) (string, error) {
 	params := c.baseParams(c.accessKeyId, nil)
 	params.Add("Format", "JSON")
@@ -102,6 +115,102 @@ func (c *Client) AllocatePublicIpAddress(instanceId string) (string, error) {
 	}
 }
 
+//启动一个指定的实例
+//
+//接口调用成功后实例进入 Starting 状态。
+//
+//实例状态必须为 Stopped，才可以调用该接口。
+//
+//被安全控制在实例的 OperationLocks 中标记了 "LockReason" : "security" 的锁定状态时，不能启动实例。
+func (c *Client) StartInstance(instanceId string) error {
+	params := c.baseParams(c.accessKeyId, nil)
+	params.Add("Format", "JSON")
+	params.Add("Action", "StartInstance")
+	params.Add("InstanceId", instanceId)
+	var response EcsBaseResponse
+	err := util.CallApiServer(API_SERVER, c.signer, params, &response)
+	if err == nil {
+		return nil
+	} else {
+		return err
+	}
+}
+
+/*
+重启指定的实例
+
+只有状态为 Running 的实例才可以进行此操作。
+
+接口调用成功后实例进入 Starting 状态。
+
+支持强制重启，强制重启等同于传统服务器的断电重启，可能丢失实例操作系统中未写入磁盘的数据。
+
+被安全控制在实例的 OperationLocks 中标记了 "LockReason" : "security" 的锁定状态时，不能重启实例。
+*/
+func (c *Client) RebootInstance(instanceId string, forceStop string) error {
+	params := c.baseParams(c.accessKeyId, nil)
+	params.Add("Format", "JSON")
+	params.Add("Action", "RebootInstance")
+	params.Add("InstanceId", instanceId)
+	params.Add("ForceStop", forceStop)
+	var response EcsBaseResponse
+	err := util.CallApiServer(API_SERVER, c.signer, params, &response)
+	if err == nil {
+		return nil
+	} else {
+		return err
+	}
+}
+
+/*
+停止一个指定的实例。
+
+只有状态为 Running 的实例才可以进行此操作。
+接口调用成功后实例进入 Stopping 状态。系统后台会在实例实际 Stop 成功后进入 Stopped 状态。
+实例支持强制停止，强制停止等同于断电处理，可能丢失实例操作系统中未写入磁盘的数据。
+被安全控制在实例的 OperationLocks 中标记了 "LockReason" : "security" 的锁定状态时，不能停止实例。
+*/
+func (c *Client) StopInstance(instanceId string, forceStop string) error {
+	params := c.baseParams(c.accessKeyId, nil)
+	params.Add("Format", "JSON")
+	params.Add("Action", "StopInstance")
+	params.Add("InstanceId", instanceId)
+	params.Add("ForceStop", forceStop)
+	var response EcsBaseResponse
+	err := util.CallApiServer(API_SERVER, c.signer, params, &response)
+	if err == nil {
+		return nil
+	} else {
+		return err
+	}
+}
+
+/*
+删除实例
+
+根据传入实例的名称来释放实例资源。释放后实例所使用的物理资源都被回收，包括磁盘及快照，相关数据全部丢失且永久不可恢复。
+实例状态必须为 Stopped，才可以进行删除操作。删除后，实例的状态为 Deleted，表示资源已释放，删除完成。
+实例被删除时，挂载在实例上的 DeleteWithInstance的属性为 True 的磁盘会相应被删除，这些磁盘的快照任旧保留，
+自动快照根据磁盘的 DeleteAutoSnapshot 属性，如果为 false 的，保留自动快照，如果为 true 的，则删除自动快照。
+实例被删除后，相关数据全部丢失且永久不可恢复。
+如果删除实例时，实例被安全控制在实例的 OperationLocks 中标记了 "LockReason" : "security" 的锁定状态时，
+即使独立普通云盘的 DeleteWithInstnace 的属性为 False，系统会忽略这个属性而释放挂载在实例上面的普通云盘。
+*/
+func (c *Client) DeleteInstance(instanceId string) error {
+	params := c.baseParams(c.accessKeyId, nil)
+	params.Add("Format", "JSON")
+	params.Add("Action", "DeleteInstance")
+	params.Add("InstanceId", instanceId)
+	var response EcsBaseResponse
+	err := util.CallApiServer(API_SERVER, c.signer, params, &response)
+	if err == nil {
+		return nil
+	} else {
+		return err
+	}
+}
+
+//创建实例
 func (c *Client) CreateInstance(instance InstanceAttributesType, password string, securityGroupId string) (string, error) {
 	params := c.baseParams(c.accessKeyId, nil)
 	params.Add("Format", "JSON")

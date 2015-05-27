@@ -9,6 +9,10 @@
 * DescribeInstanceAttribute :查询实例信息
 * CreateInstance :创建实例
 * AllocatePublicIpAddress :分配公网 IP 地址
+* StartInstance :启动一个指定的实例
+* RebootInstance :重启指定的实例
+* StopInstance :停止一个指定的实例
+* DeleteInstance :删除实例
 * 更多API正在完善中, 您也可以参考现有API自己完成
 
 ### 使用方法

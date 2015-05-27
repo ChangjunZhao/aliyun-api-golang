@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ChangjunZhao/aliyun-api-golang/signer"
+	"github.com/hypersleep/easyssh"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -13,19 +14,19 @@ import (
 	"strings"
 )
 
-// HTTPExecuteError signals that a call to httpExecute failed.
+// HTTP请求错误信息
 type HTTPExecuteError struct {
-	// RequestHeaders provides a stringified listing of request headers.
+	// Request Header
 	RequestHeaders string
-	// ResponseBodyBytes is the response read into a byte slice.
+	// Response BodyBytes
 	ResponseBodyBytes []byte
-	// Status is the status code string response.
+	// Status
 	Status string
-	// StatusCode is the parsed status code.
+	// StatusCode
 	StatusCode int
 }
 
-// Error provides a printable string description of an HTTPExecuteError.
+// Error 输出
 func (e HTTPExecuteError) Error() string {
 	return "HTTP response is not 200/OK as expected. Actual response: \n" +
 		"\tResponse Status: '" + e.Status + "'\n" +
@@ -130,6 +131,26 @@ func CallApiServer(server string, signer *signer.SHA1Signer, params *OrderedPara
 	} else {
 		return err
 	}
+}
+
+//本方法用于处理阿里云自动移除172.16.0.0的路由表，否则无法启动docker的服务
+func RemoveNetworkRouter(server string, user string, password string, os string) error {
+	// Create MakeConfig instance with remote username, server address and path to private key.
+	ssh := &easyssh.MakeConfig{
+		User:     user,
+		Server:   server,
+		Password: password,
+		Port:     "22",
+	}
+	var filepath string
+	if os == "centos" {
+		filepath = "/etc/sysconfig/network-scripts/route-eth0"
+	} else {
+		filepath = "/etc/network/interfaces"
+	}
+	_, err := ssh.Run("sed -i '/172.16.0.0/'d " + filepath)
+
+	return err
 }
 
 //排序后的参数列表
