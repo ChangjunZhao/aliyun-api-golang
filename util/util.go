@@ -101,22 +101,26 @@ func buildRequestUrl(serverUrl string, base64Signature string, params *OrderedPa
 		}
 		result += fmt.Sprintf("%s=%s", key, params.Get(key))
 	}
-	result += "&Signature=" + url.QueryEscape(base64Signature)
+	result += "&Signature=" + Escape(base64Signature)
 	return result
 }
 
 //计算签名的字符串
 func requestString(method string, urlPath string, params *OrderedParams) string {
-	result := method + "&" + url.QueryEscape(urlPath)
+	result := method + "&" + Escape(urlPath)
 	for pos, key := range params.Keys() {
 		if pos == 0 {
 			result += "&"
 		} else {
-			result += url.QueryEscape("&")
+			result += Escape("&")
 		}
-		result += url.QueryEscape(fmt.Sprintf("%s=%s", key, params.Get(key)))
+		result += Escape(fmt.Sprintf("%s=%s", key, params.Get(key)))
 	}
 	return result
+}
+
+func Escape(s string) string {
+	return strings.Replace(url.QueryEscape(s), "+", "%20", -1)
 }
 
 //调用API
@@ -176,7 +180,7 @@ func (o *OrderedParams) Keys() []string {
 }
 
 func (o *OrderedParams) Add(key, value string) {
-	o.AddUnescaped(key, url.QueryEscape(value))
+	o.AddUnescaped(key, Escape(value))
 }
 
 func (o *OrderedParams) AddUnescaped(key, value string) {

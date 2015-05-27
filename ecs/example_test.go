@@ -21,9 +21,9 @@ func ExampleClient_CreateInstance() {
 	instance.InternetMaxBandwidthOut = 1
 	instanceId, _ := c.CreateInstance(instance, "rootpassword", "securitygroup")
 	//查询实例
-	instancenew, err := c.DescribeInstanceAttribute("instanceId")
+	instancenew, err := c.DescribeInstanceAttribute(instanceId)
 	if err == nil {
-		fmt.Println("instance:", instances)
+		fmt.Println("instance:", instancenew)
 
 	} else {
 		fmt.Println("error:", err)
