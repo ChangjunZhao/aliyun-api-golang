@@ -1,16 +1,13 @@
+// Copyright 2015 Beijing Venusource Tech.Co.Ltd. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+//
+//ECS API使用的数据类型
 package ecs
 
 //API基础返回对象
 type EcsBaseResponse struct {
 	RequestId string `json:"RequestId"` //请求ID
-}
-
-//API调用错误返回对象
-type ErrorResponse struct {
-	EcsBaseResponse
-	HostId  string `json:"HostId"`  //服务器HOSTID
-	Code    string `json:"Code"`    //错误代码
-	Message string `json:"Message"` //错误信息
 }
 
 // Region信息的类型

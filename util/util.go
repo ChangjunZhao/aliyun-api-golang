@@ -1,3 +1,8 @@
+// Copyright 2015 Beijing Venusource Tech.Co.Ltd. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+//
+//封装了http调用相关的一些方法
 package util
 
 import (
@@ -10,7 +15,7 @@ import (
 	"net/http"
 	"net/url"
 	"sort"
-	"strconv"
+	//"strconv"
 	"strings"
 )
 
@@ -26,13 +31,25 @@ type HTTPExecuteError struct {
 	StatusCode int
 }
 
+//API调用错误返回对象
+type ErrorResponse struct {
+	RequestId string `json:"RequestId"` //请求ID
+	HostId    string `json:"HostId"`    //服务器HOSTID
+	Code      string `json:"Code"`      //错误代码
+	Message   string `json:"Message"`   //错误信息
+}
+
 // Error 输出
 func (e HTTPExecuteError) Error() string {
-	return "HTTP response is not 200/OK as expected. Actual response: \n" +
-		"\tResponse Status: '" + e.Status + "'\n" +
-		"\tResponse Code: " + strconv.Itoa(e.StatusCode) + "\n" +
-		"\tResponse Body: " + string(e.ResponseBodyBytes) + "\n" +
-		"\tRequest Headers: " + e.RequestHeaders
+	var ecsErr ErrorResponse
+	json.Unmarshal(e.ResponseBodyBytes, &ecsErr)
+	/*
+		return "Response Status: '" + e.Status + "'\n" +
+			"\tResponse Code: " + strconv.Itoa(e.StatusCode) + "\n" +
+			"\tResponse Body: " + string(e.ResponseBodyBytes) + "\n" +
+			"\tRequest Headers: " + e.RequestHeaders
+	*/
+	return ecsErr.Message
 }
 
 //执行http请求
@@ -75,12 +92,12 @@ func httpExecute(
 func getBody(method, url string, oauthParams *OrderedParams) (*string, error) {
 	resp, err := httpExecute(method, url, "", "", oauthParams)
 	if err != nil {
-		return nil, errors.New("httpExecute: " + err.Error())
+		return nil, errors.New(err.Error())
 	}
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	resp.Body.Close()
 	if err != nil {
-		return nil, errors.New("ReadAll: " + err.Error())
+		return nil, errors.New(err.Error())
 	}
 	bodyStr := string(bodyBytes)
 	/*

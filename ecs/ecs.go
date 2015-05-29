@@ -1,4 +1,8 @@
-// 阿里云API go语言版本
+// Copyright 2015 Beijing Venusource Tech.Co.Ltd. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+//
+// 阿里云ECS API go语言版本
 package ecs
 
 import (
@@ -47,7 +51,6 @@ func NewClient(accessKeyId string, accessKeySecret string) *Client {
 
 func (c *Client) Debug(enabled bool) {
 	c.debug = enabled
-	c.signer.Debug(enabled)
 }
 
 // 查询实例列表
