@@ -15,6 +15,9 @@
 * DeleteInstance :删除实例
 * 更多API正在完善中, 您也可以参考现有API自己完成
 
+### 安装
+ `go get github.com/ChangjunZhao/aliyun-api-golang/ecs`
+
 ### 使用方法
 
 ```
