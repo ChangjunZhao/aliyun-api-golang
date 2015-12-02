@@ -35,24 +35,29 @@ func main() {
 		  )
     c.Debug(true)
     //创建实例
-    var instance ecs.InstanceAttributesType
-    instance.RegionId = "cn-beijing"
-    instance.ImageId = "m-25mtsy38b"
-    instance.InstanceType = "ecs.t1.small"
-    instance.InternetChargeType = "PayByTraffic"
-    instance.InternetMaxBandwidthIn = 1
-    instance.InternetMaxBandwidthOut = 1
-    instanceId, _ := c.CreateInstance(instance, "rootpassword", "securitygroup")
+    //创建实例
+    request := &ecs.CreateInstanceRequest{
+        RegionId:                "cn-beijing",
+        ImageId:                 "m-25mtsy38b",
+        InstanceType:            "ecs.t1.small",
+        SecurityGroupId:         "securitygroup",
+        Password:                "rootpassword",
+        InternetChargeType:      "PayByTraffic",
+        InternetMaxBandwidthIn:  "10",
+        InternetMaxBandwidthOut: "10",
+    }
+    if response, err := c.CreateInstanceByRequest(request); err == nil {
+        fmt.Println(response.InstanceId)
+    } else {
+        fmt.Println("error:", err)
+    }
     //查询实例
-    instancenew, err := c.DescribeInstanceAttribute("instanceId")
-	if err == nil {
-                fmt.Println("instance:", instances)
-        
-	} else {
-                fmt.Println("error:", err)
-        
-	}
+    if instance, err := c.DescribeInstanceAttribute("instanceId"); err == nil {
+        fmt.Println("instance:", instance)
 
+    } else {
+        fmt.Println("error:", err)
+    }
 }
 ```
 
