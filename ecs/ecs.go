@@ -58,11 +58,19 @@ func (c *Client) Debug(enabled bool) {
 // regionId 地域ID,如cn-beijing
 //
 // 返回值InstanceAttributesType数组及错误信息
+// This function is @deprecated and replaced by DescribeInstancesByRequest
 func (c *Client) DescribeInstances(regionId string) ([]InstanceAttributesType, error) {
+	var request = &DescribeInstancesRequest{RegionId: regionId}
+	return c.DescribeInstancesByRequest(request)
+}
+
+// 查询实例列表
+//
+// 返回值InstanceAttributesType数组及错误信息
+func (c *Client) DescribeInstancesByRequest(request *DescribeInstancesRequest) ([]InstanceAttributesType, error) {
 	params := c.baseParams(c.accessKeyId, nil)
 	params.Add("Format", "JSON")
-	params.Add("Action", "DescribeInstances")
-	params.Add("RegionId", regionId)
+	request.AddToParams(params)
 	var describeInstancesResponse DescribeInstancesResponse
 	err := util.CallApiServer(API_SERVER, c.signer, params, &describeInstancesResponse)
 	if err == nil {
@@ -213,29 +221,43 @@ func (c *Client) DeleteInstance(instanceId string) error {
 	}
 }
 
-//创建实例
+// This function is @deprecated and replaced by CreateInstanceByRequest
 func (c *Client) CreateInstance(instance InstanceAttributesType, password string, securityGroupId string) (string, error) {
+	request := &CreateInstanceRequest{
+		RegionId:                instance.RegionId,
+		ZoneId:                  instance.ZoneId,
+		ImageId:                 instance.ImageId,
+		InstanceName:            instance.InstanceName,
+		Description:             instance.Description,
+		InstanceType:            instance.InstanceType,
+		SecurityGroupId:         securityGroupId,
+		HostName:                instance.HostName,
+		Password:                password,
+		InternetChargeType:      instance.InternetChargeType,
+		InternetMaxBandwidthIn:  strconv.Itoa(instance.InternetMaxBandwidthIn),
+		InternetMaxBandwidthOut: strconv.Itoa(instance.InternetMaxBandwidthOut),
+		VSwitchId:               instance.VpcAttributes.VSwitchId,
+	}
+	if response, err := c.CreateInstanceByRequest(request); err == nil {
+		return response.InstanceId, nil
+	} else {
+		return "", err
+	}
+}
+
+func (c *Client) CreateInstanceByRequest(request *CreateInstanceRequest) (*CreateInstanceResponse, error) {
 	params := c.baseParams(c.accessKeyId, nil)
 	params.Add("Format", "JSON")
-	params.Add("Action", "CreateInstance")
-	params.Add("RegionId", instance.RegionId)
-	params.Add("ZoneId", instance.ZoneId)
-	params.Add("ImageId", instance.ImageId)
-	params.Add("InstanceType", instance.InstanceType)
-	params.Add("SecurityGroupId", securityGroupId)
-	params.Add("InstanceName", instance.InstanceName)
-	params.Add("Description", instance.Description)
-	params.Add("InternetChargeType", instance.InternetChargeType)
-	params.Add("InternetMaxBandwidthIn", strconv.Itoa(instance.InternetMaxBandwidthIn))
-	params.Add("InternetMaxBandwidthOut", strconv.Itoa(instance.InternetMaxBandwidthOut))
-	params.Add("HostName", instance.HostName)
-	params.Add("Password", password)
-	var createInstanceResponse CreateInstanceResponse
-	err := util.CallApiServer(API_SERVER, c.signer, params, &createInstanceResponse)
-	if err == nil {
-		return createInstanceResponse.InstanceId, nil
+	if err := request.AddToParams(params); err == nil {
+		var createInstanceResponse CreateInstanceResponse
+		err := util.CallApiServer(API_SERVER, c.signer, params, &createInstanceResponse)
+		if err == nil {
+			return &createInstanceResponse, nil
+		} else {
+			return nil, err
+		}
 	} else {
-		return "", nil
+		return nil, err
 	}
 }
 
