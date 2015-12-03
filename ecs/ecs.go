@@ -6,6 +6,7 @@
 package ecs
 
 import (
+	"fmt"
 	"github.com/ChangjunZhao/aliyun-api-golang/signer"
 	"github.com/ChangjunZhao/aliyun-api-golang/util"
 	"math/rand"
@@ -59,7 +60,7 @@ func (c *Client) Debug(enabled bool) {
 //
 // 返回值InstanceAttributesType数组及错误信息
 // This function is @deprecated and replaced by DescribeInstancesByRequest
-func (c *Client) DescribeInstances(regionId string) ([]InstanceAttributesType, error) {
+func (c *Client) DescribeInstances(regionId string) (*DescribeInstancesResponse, error) {
 	var request = &DescribeInstancesRequest{RegionId: regionId}
 	return c.DescribeInstancesByRequest(request)
 }
@@ -67,7 +68,7 @@ func (c *Client) DescribeInstances(regionId string) ([]InstanceAttributesType, e
 // 查询实例列表
 //
 // 返回值InstanceAttributesType数组及错误信息
-func (c *Client) DescribeInstancesByRequest(request *DescribeInstancesRequest) ([]InstanceAttributesType, error) {
+func (c *Client) DescribeInstancesByRequest(request *DescribeInstancesRequest) (*DescribeInstancesResponse, error) {
 	params := c.baseParams(c.accessKeyId, nil)
 	params.Add("Format", "JSON")
 	if err := request.AddToParams(params); err != nil {
@@ -76,7 +77,7 @@ func (c *Client) DescribeInstancesByRequest(request *DescribeInstancesRequest) (
 	var describeInstancesResponse DescribeInstancesResponse
 	err := util.CallApiServer(API_SERVER, c.signer, params, &describeInstancesResponse)
 	if err == nil {
-		return describeInstancesResponse.Instances.Instance, nil
+		return &describeInstancesResponse, nil
 	} else {
 		return nil, err
 	}
@@ -92,8 +93,12 @@ func (c *Client) DescribeInstanceAttribute(regionId string, instanceId string) (
 		RegionId:    regionId,
 		InstanceIds: "['" + instanceId + "']",
 	}
-	if instances, err := c.DescribeInstancesByRequest(request); err == nil {
-		return &instances[0], err
+	if response, err := c.DescribeInstancesByRequest(request); err == nil {
+		if response.TotalCount > 0 {
+			return &response.Instances.Instance[0], err
+		} else {
+			return nil, fmt.Errorf("can not find instance: %s in giving region: %s", instanceId, regionId)
+		}
 	} else {
 		return nil, err
 	}
