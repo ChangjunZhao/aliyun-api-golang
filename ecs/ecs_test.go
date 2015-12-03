@@ -7,6 +7,7 @@ package ecs
 
 import (
 	"gopkg.in/check.v1"
+	"os"
 	"testing"
 )
 
@@ -17,12 +18,18 @@ type ECSTestSuite struct {
 }
 
 var _ = check.Suite(&ECSTestSuite{NewClient(
-	"Access Key ID",
-	"Access Key Secret",
+	os.Getenv("ECS_ACCESS_KEY_ID"),
+	os.Getenv("ECS_ACCESS_KEY_SECRET"),
 )})
 
 //测试查询实例列表
 func (s *ECSTestSuite) TestDescribeInstances(c *check.C) {
 	_, err := s.client.DescribeInstances("cn-beijing")
 	c.Assert(err, check.IsNil)
+}
+
+func (s *ECSTestSuite) TestDescribeInstanceAttribute(c *check.C) {
+	_, err := s.client.DescribeInstanceAttribute("cn-beijing", "i-25c26cnig")
+	c.Assert(err, check.IsNil)
+
 }

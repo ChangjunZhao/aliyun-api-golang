@@ -70,7 +70,9 @@ func (c *Client) DescribeInstances(regionId string) ([]InstanceAttributesType, e
 func (c *Client) DescribeInstancesByRequest(request *DescribeInstancesRequest) ([]InstanceAttributesType, error) {
 	params := c.baseParams(c.accessKeyId, nil)
 	params.Add("Format", "JSON")
-	request.AddToParams(params)
+	if err := request.AddToParams(params); err != nil {
+		return nil, err
+	}
 	var describeInstancesResponse DescribeInstancesResponse
 	err := util.CallApiServer(API_SERVER, c.signer, params, &describeInstancesResponse)
 	if err == nil {
@@ -85,15 +87,13 @@ func (c *Client) DescribeInstancesByRequest(request *DescribeInstancesRequest) (
 //instanceId :实例ID
 //
 //返回值：InstanceAttributesType 实例对象
-func (c *Client) DescribeInstanceAttribute(instanceId string) (*InstanceAttributesType, error) {
-	params := c.baseParams(c.accessKeyId, nil)
-	params.Add("Format", "JSON")
-	params.Add("Action", "DescribeInstanceAttribute")
-	params.Add("InstanceId", instanceId)
-	var instanceAttributesType InstanceAttributesType
-	err := util.CallApiServer(API_SERVER, c.signer, params, &instanceAttributesType)
-	if err == nil {
-		return &instanceAttributesType, nil
+func (c *Client) DescribeInstanceAttribute(regionId string, instanceId string) (*InstanceAttributesType, error) {
+	request := &DescribeInstancesRequest{
+		RegionId:    regionId,
+		InstanceIds: "['" + instanceId + "']",
+	}
+	if instances, err := c.DescribeInstancesByRequest(request); err == nil {
+		return &instances[0], err
 	} else {
 		return nil, err
 	}

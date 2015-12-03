@@ -35,7 +35,6 @@ func main() {
 		  )
     c.Debug(true)
     //创建实例
-    //创建实例
     request := &ecs.CreateInstanceRequest{
         RegionId:                "cn-beijing",
         ImageId:                 "m-25mtsy38b",
@@ -52,7 +51,7 @@ func main() {
         fmt.Println("error:", err)
     }
     //查询实例
-    if instance, err := c.DescribeInstanceAttribute("instanceId"); err == nil {
+    if instance, err := c.DescribeInstanceAttribute("cn-beijing", "instanceId"); err == nil {
         fmt.Println("instance:", instance)
 
     } else {

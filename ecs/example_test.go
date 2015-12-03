@@ -8,12 +8,13 @@ package ecs_test
 import (
 	"fmt"
 	"github.com/ChangjunZhao/aliyun-api-golang/ecs"
+	"os"
 )
 
 func ExampleClient_CreateInstance() {
 	c := ecs.NewClient(
-		"Access Key ID",
-		"Access Key Secret",
+		os.Getenv("ECS_ACCESS_KEY_ID"),
+		os.Getenv("ECS_ACCESS_KEY_SECRET"),
 	)
 	c.Debug(true)
 	//创建实例
@@ -33,7 +34,7 @@ func ExampleClient_CreateInstance() {
 		fmt.Println("error:", err)
 	}
 	//查询实例
-	if instance, err := c.DescribeInstanceAttribute("instanceId"); err == nil {
+	if instance, err := c.DescribeInstanceAttribute("cn-beijing", "instanceId"); err == nil {
 		fmt.Println("instance:", instance)
 
 	} else {
