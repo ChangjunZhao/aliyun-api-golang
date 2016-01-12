@@ -70,7 +70,6 @@ func (c *Client) DescribeInstances(regionId string) (*DescribeInstancesResponse,
 // 返回值InstanceAttributesType数组及错误信息
 func (c *Client) DescribeInstancesByRequest(request *DescribeInstancesRequest) (*DescribeInstancesResponse, error) {
 	params := c.baseParams(c.accessKeyId, nil)
-	params.Add("Format", "JSON")
 	if err := request.AddToParams(params); err != nil {
 		return nil, err
 	}
@@ -119,7 +118,6 @@ func (c *Client) DescribeInstanceAttribute(regionId string, instanceId string) (
 */
 func (c *Client) AllocatePublicIpAddress(instanceId string) (string, error) {
 	params := c.baseParams(c.accessKeyId, nil)
-	params.Add("Format", "JSON")
 	params.Add("Action", "AllocatePublicIpAddress")
 	params.Add("InstanceId", instanceId)
 	var allocatePublicIpAddress AllocatePublicIpAddressResponse
@@ -140,7 +138,6 @@ func (c *Client) AllocatePublicIpAddress(instanceId string) (string, error) {
 //被安全控制在实例的 OperationLocks 中标记了 "LockReason" : "security" 的锁定状态时，不能启动实例。
 func (c *Client) StartInstance(instanceId string) error {
 	params := c.baseParams(c.accessKeyId, nil)
-	params.Add("Format", "JSON")
 	params.Add("Action", "StartInstance")
 	params.Add("InstanceId", instanceId)
 	var response EcsBaseResponse
@@ -165,7 +162,6 @@ func (c *Client) StartInstance(instanceId string) error {
 */
 func (c *Client) RebootInstance(instanceId string, forceStop string) error {
 	params := c.baseParams(c.accessKeyId, nil)
-	params.Add("Format", "JSON")
 	params.Add("Action", "RebootInstance")
 	params.Add("InstanceId", instanceId)
 	params.Add("ForceStop", forceStop)
@@ -188,7 +184,6 @@ func (c *Client) RebootInstance(instanceId string, forceStop string) error {
 */
 func (c *Client) StopInstance(instanceId string, forceStop string) error {
 	params := c.baseParams(c.accessKeyId, nil)
-	params.Add("Format", "JSON")
 	params.Add("Action", "StopInstance")
 	params.Add("InstanceId", instanceId)
 	params.Add("ForceStop", forceStop)
@@ -214,7 +209,6 @@ func (c *Client) StopInstance(instanceId string, forceStop string) error {
 */
 func (c *Client) DeleteInstance(instanceId string) error {
 	params := c.baseParams(c.accessKeyId, nil)
-	params.Add("Format", "JSON")
 	params.Add("Action", "DeleteInstance")
 	params.Add("InstanceId", instanceId)
 	var response EcsBaseResponse
@@ -252,7 +246,6 @@ func (c *Client) CreateInstance(instance InstanceAttributesType, password string
 
 func (c *Client) CreateInstanceByRequest(request *CreateInstanceRequest) (*CreateInstanceResponse, error) {
 	params := c.baseParams(c.accessKeyId, nil)
-	params.Add("Format", "JSON")
 	if err := request.AddToParams(params); err == nil {
 		var createInstanceResponse CreateInstanceResponse
 		err := util.CallApiServer(API_SERVER, c.signer, params, &createInstanceResponse)
@@ -270,6 +263,96 @@ type nonceGenerator interface {
 	Int63() int64
 }
 
+// 创建安全组
+func (c *Client) CreateSecurityGroup(request *CreateSecurityGroupRequest) (*CreateSecurityGroupResponse, error) {
+	params := c.baseParams(c.accessKeyId, nil)
+	if err := request.AddToParams(params); err != nil {
+		return nil, err
+	}
+	var createSecurityGroupResponse CreateSecurityGroupResponse
+	err := util.CallApiServer(API_SERVER, c.signer, params, &createSecurityGroupResponse)
+	if err == nil {
+		return &createSecurityGroupResponse, nil
+	} else {
+		return nil, err
+	}
+}
+
+// 删除安全组
+func (c *Client) DeleteSecurityGroup(request *DeleteSecurityGroupRequest) (*EcsBaseResponse, error) {
+	params := c.baseParams(c.accessKeyId, nil)
+	if err := request.AddToParams(params); err != nil {
+		return nil, err
+	}
+	var response EcsBaseResponse
+	err := util.CallApiServer(API_SERVER, c.signer, params, &response)
+	if err == nil {
+		return &response, nil
+	} else {
+		return nil, err
+	}
+}
+
+// 授权安全组In方向的访问权限
+func (c *Client) AuthorizeSecurityGroup(request *AuthorizeSecurityGroupRequest) (*EcsBaseResponse, error) {
+	params := c.baseParams(c.accessKeyId, nil)
+	if err := request.AddToParams(params); err != nil {
+		return nil, err
+	}
+	var response EcsBaseResponse
+	err := util.CallApiServer(API_SERVER, c.signer, params, &response)
+	if err == nil {
+		return &response, nil
+	} else {
+		return nil, err
+	}
+}
+
+// 撤销安全组授权规则
+func (c *Client) RevokeSecurityGroup(request *RevokeSecurityGroupRequest) (*EcsBaseResponse, error) {
+	params := c.baseParams(c.accessKeyId, nil)
+	if err := request.AddToParams(params); err != nil {
+		return nil, err
+	}
+	var response EcsBaseResponse
+	err := util.CallApiServer(API_SERVER, c.signer, params, &response)
+	if err == nil {
+		return &response, nil
+	} else {
+		return nil, err
+	}
+}
+
+// 添加安全组Out方向的访问规则
+func (c *Client) AuthorizeSecurityGroupEgress(request *AuthorizeSecurityGroupEgressRequest) (*EcsBaseResponse, error) {
+	params := c.baseParams(c.accessKeyId, nil)
+	if err := request.AddToParams(params); err != nil {
+		return nil, err
+	}
+	var response EcsBaseResponse
+	err := util.CallApiServer(API_SERVER, c.signer, params, &response)
+	if err == nil {
+		return &response, nil
+	} else {
+		return nil, err
+	}
+}
+
+// 撤销安全组Out方向的访问规则
+func (c *Client) RevokeSecurityGroupEgress(request *RevokeSecurityGroupEgressRequest) (*EcsBaseResponse, error) {
+	params := c.baseParams(c.accessKeyId, nil)
+	if err := request.AddToParams(params); err != nil {
+		return nil, err
+	}
+	var response EcsBaseResponse
+	err := util.CallApiServer(API_SERVER, c.signer, params, &response)
+	if err == nil {
+		return &response, nil
+	} else {
+		return nil, err
+	}
+}
+
 // 构造公共参数
 func (c *Client) baseParams(accessKeyId string, additionalParams map[string]string) *util.OrderedParams {
 	params := util.NewOrderedParams()
@@ -279,6 +362,7 @@ func (c *Client) baseParams(accessKeyId string, additionalParams map[string]stri
 	params.Add(TIMESTAMP_PARAM, time.Now().UTC().Format("2006-01-02T15:04:05Z"))
 	params.Add(NONCE_PARAM, strconv.FormatInt(c.nonceGenerator.Int63(), 10))
 	params.Add(ACCESS_KEY_ID_PARAM, accessKeyId)
+	params.Add("Format", "JSON")
 	for key, value := range additionalParams {
 		params.Add(key, value)
 	}

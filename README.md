@@ -13,6 +13,12 @@
 * RebootInstance :重启指定的实例
 * StopInstance :停止一个指定的实例
 * DeleteInstance :删除实例
+* CreateSecurityGroup :创建安全组
+* DeleteSecurityGroup :删除安全组
+* AuthorizeSecurityGroup :授权安全组In方向的访问权限
+* RevokeSecurityGroup :撤销安全组授权规则
+* AuthorizeSecurityGroupEgress :添加安全组Out方向的访问规则
+* RevokeSecurityGroupEgress :撤销安全组Out方向的访问规则
 * 更多API正在完善中, 您也可以参考现有API自己完成
 
 ### 安装
