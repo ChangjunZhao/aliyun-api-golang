@@ -124,6 +124,18 @@ func AddNotNullFieldToParams(params *util.OrderedParams, value string, fieldName
 	}
 }
 
+// 可用区相关操作
+
+type DescribeRegionsRequest struct {
+	Action string
+}
+
+func (r *DescribeRegionsRequest) AddToParams(params *util.OrderedParams) error {
+	r.Action = "DescribeRegions"
+	params.Add("Action", r.Action)
+	return nil
+}
+
 // 安全组相关操作
 
 // 创建安全组请求

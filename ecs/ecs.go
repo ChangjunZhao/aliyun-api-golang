@@ -263,6 +263,21 @@ type nonceGenerator interface {
 	Int63() int64
 }
 
+// 查询可用区域
+func (c *Client) DescribeRegions(request *DescribeRegionsRequest) (*DescribeRegionsResponse, error) {
+	params := c.baseParams(c.accessKeyId, nil)
+	if err := request.AddToParams(params); err != nil {
+		return nil, err
+	}
+	var describeRegionsResponse DescribeRegionsResponse
+	err := util.CallApiServer(API_SERVER, c.signer, params, &describeRegionsResponse)
+	if err == nil {
+		return &describeRegionsResponse, nil
+	} else {
+		return nil, err
+	}
+}
+
 // 创建安全组
 func (c *Client) CreateSecurityGroup(request *CreateSecurityGroupRequest) (*CreateSecurityGroupResponse, error) {
 	params := c.baseParams(c.accessKeyId, nil)

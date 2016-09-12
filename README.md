@@ -5,6 +5,7 @@
 
 ### ECS目前封装了以下API
 
+* DescribeRegions :查询可用区域
 * DescribeInstances :查询实例列表
 * DescribeInstanceAttribute :查询实例信息
 * CreateInstance :创建实例
